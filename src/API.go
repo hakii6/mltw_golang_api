@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"fmt"
+	// "fmt"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 	"gorm.io/driver/mysql"
@@ -13,20 +13,10 @@ import (
 const (
     host     = "localhost"
     database = "test2"
-    user     = "root"
-    password = "zxcv2587"
+    user     = "user"
+    password = "password"
     connect = user + ":" + password + "@tcp(" + host + ":3306)/" + database + "?charset=utf8&parseTime=true"
 )
-
-// func (song *Song) Show(db *gorm.DB, id string) string {
-// 	res := db.Select("id", "name_jp", "name_tw", "BPM", "length", "date").Where("id = ?", id).First(&song)
-// 	checkError(res.Error)
-// 	return "Success"
-// }  
-
-// type Card struct {
-	
-// }
 
 func checkError(err error) {
     if err != nil {
@@ -38,31 +28,51 @@ func IndexObjects(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
+		case "events":
+			res := IndexEvents(db)
+			json.NewEncoder(w).Encode(res)
+		case "gachas":
+			res := IndexGachas(db)
+			json.NewEncoder(w).Encode(res)
+		case "idols":
+			res := IndexIdols(db)
+			json.NewEncoder(w).Encode(res)		
 		case "songs":
 			res := IndexSongs(db)
-			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(res)
 		case "cards":
 			res := IndexCards(db)
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(res)
-		}
+			json.NewEncoder(w).Encode(res)	
+	}
+
+	
 }
 
 func CreateObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
+		case "events":
+			res := CreateSong(db, r)
+			json.NewEncoder(w).Encode(res)
+		case "gachas":
+			res := CreateGacha(db, r)
+			json.NewEncoder(w).Encode(res)
+		case "idols":
+			res := CreateIdol(db, r)
+			json.NewEncoder(w).Encode(res)
 		case "songs":
 			res := CreateSong(db, r)
-			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(res)
 		case "cards":
-			fmt.Println("cards")
+			res := CreateCard(db, r)
+			json.NewEncoder(w).Encode(res)
 	}
 }
 
@@ -70,14 +80,24 @@ func ShowObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
+		case "events":
+			res := ShowSong(db, params["id"])
+			json.NewEncoder(w).Encode(res)
+		case "gachas":
+			res := ShowGacha(db, params["id"])
+			json.NewEncoder(w).Encode(res)
+		case "idols":
+			res := ShowIdol(db, params["id"])
+			json.NewEncoder(w).Encode(res)
 		case "songs":
 			res := ShowSong(db, params["id"])
-			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(res)
 		case "cards":
-			fmt.Println("cards")
+			res := ShowCard(db, params["id"])
+			json.NewEncoder(w).Encode(res)
 	}
 }
 
@@ -85,14 +105,24 @@ func UpdateObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
+		case "events":
+			res := UpdateSong(db, r)
+			json.NewEncoder(w).Encode(res)
+		case "gachas":
+			res := UpdateGacha(db, r)
+			json.NewEncoder(w).Encode(res)
+		case "idolss":
+			res := UpdateIdol(db, r)
+			json.NewEncoder(w).Encode(res)
 		case "songs":
 			res := UpdateSong(db, r)
-			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(res)
 		case "cards":
-			fmt.Println("cards")
+			res := UpdateCard(db, r)
+			json.NewEncoder(w).Encode(res)
 	}
 
 }
@@ -101,13 +131,23 @@ func DeleteObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
+		case "events":
+			res := DeleteSong(db, params["id"])
+			json.NewEncoder(w).Encode(res)
+		case "gachas":
+			res := DeleteGacha(db, params["id"])
+			json.NewEncoder(w).Encode(res)
+		case "idols":
+			res := DeleteIdol(db, params["id"])
+			json.NewEncoder(w).Encode(res)
 		case "songs":
 			res := DeleteSong(db, params["id"])
-			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(res)
 		case "cards":
-			fmt.Println("cards")
+			res := DeleteCard(db, params["id"])
+			json.NewEncoder(w).Encode(res)
 	}
 }
