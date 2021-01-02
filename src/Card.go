@@ -10,7 +10,10 @@ import (
 )
 
 type Card struct {
-	ID string `json:"id"`
+	ID string `json:"ID"`
+	Idol Idol
+	IdolID string `json:"IdolID"`
+
 	Name_jp string `json:"NameJP"`
 	Name_tw string `json:"NameTW"`
 	Rarity string `json:"Rarity"`
@@ -20,6 +23,12 @@ type Card struct {
 	Visual int `json:"Visual"`
 	Limited string `json:"Limited"`
 	Date string `json:"Date"`
+
+	ImageA string `json:"ImageA"`
+	ImageB string `json:"ImageB"`
+
+	GetCardID string `json:"GetCardID"`
+	GetCardType string `json:"GetCardType"`
 }
 
 func IndexCards(db *gorm.DB) []Card {
@@ -41,7 +50,9 @@ func CreateCard(db *gorm.DB, r *http.Request) Card {
 
 func ShowCard(db *gorm.DB, id string) Card {
 	var card Card
-	res := db.Select("id", "name_jp", "name_tw", "rarity", "limited", "date").Where("id = ?", id).First(&card)
+	res := db.Preload("Idol").Where("id = ?", id).First(&card)
+
+	// res := db.Select("id", "name_jp", "name_tw", "rarity", "limited", "date").Where("id = ?", id).First(&card)
 	checkError(res.Error)
 	return card
 }

@@ -10,17 +10,19 @@ import (
 )
 
 type Gacha struct {
-	ID string `json:"id"`
+	ID string `json:"ID"`
 	Name_jp string `json:"NameJP"`
 	Name_tw string `json:"NameTW"`
 	StartDate time.Time `json:"StartDate"`
 	EndDate time.Time `json:"EndDate"`
 	Ori_url string `json:"Ori_url"`
+	Image string `json:"Image"`
+	Cards []Card `gorm:"polymorphic:GetCard;polymorphicValue:Gacha"`
 }
 
 func IndexGachas(db *gorm.DB) []Gacha {
 	var gachas []Gacha
-	res := db.Select("id", "name_jp", "name_tw", "start_date", "end_date", "ori_url").Find(&gachas)
+	res := db.Preload("Cards").Find(&gachas)
 	checkError(res.Error)
 	return gachas
 }

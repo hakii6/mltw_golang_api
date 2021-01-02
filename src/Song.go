@@ -10,17 +10,31 @@ import (
 )
 
 type Song struct {
-	ID string `json:"id"`
-	Name_jp string `json:"NameJP"`
-	Name_tw string `json:"NameTW"`
+	ID string `json:"ID"`
+	NameJP string `json:"NameJP"`
+	NameTW string `json:"NameTW"`
 	BPM string `json:"BPM"`
 	Length string `json:"Length"`
 	Date time.Time `json:"Date"`
+	Image string `json:"Image"`
+	Type string `json:"Type"`
+
+	EzLv int `json:"EzLv"`
+	NmLv int `json:"NmLv"`
+	HrLv int `json:"HrLv"`
+	Hr2Lv int `json:"Hr2Lv"`
+	ExLv int `json:"ExLv"`
+
+	EzNotes int `json:"EzNotes"`
+	NmNotes int `json:"NmNotes"`
+	HrNotes int `json:"HrNotes"`
+	Hr2Notes int `json:"Hr2Notes"`
+	ExNotes int `json:"ExNotes"`
 }
 
 func IndexSongs(db *gorm.DB) []Song {
 	var songs []Song
-	res := db.Select("id", "name_jp", "name_tw", "BPM", "length", "date").Find(&songs)
+	res := db.Select("id", "name_jp", "name_tw", "BPM", "length", "image", "date", "type").Find(&songs)
 	checkError(res.Error)
 	return songs
 }
@@ -30,14 +44,14 @@ func CreateSong(db *gorm.DB, r *http.Request) Song {
 	err := json.NewDecoder(r.Body).Decode(&song)
 	checkError(err)
 
-	res := db.Select("id", "name_jp", "name_tw", "BPM", "length", "date").Create(&song)
+	res := db.Create(&song)
 	checkError(res.Error)
 	return song
 }
 
 func ShowSong(db *gorm.DB, id string) Song {
 	var song Song
-	res := db.Select("id", "name_jp", "name_tw", "BPM", "length", "date").Where("id = ?", id).First(&song)
+	res := db.Where("id = ?", id).First(&song)
 	checkError(res.Error)
 	return song
 }

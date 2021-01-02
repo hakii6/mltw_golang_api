@@ -10,13 +10,6 @@ import (
 
 )
 
-const (
-    host     = "localhost"
-    database = "test2"
-    user     = "user"
-    password = "password"
-    connect = user + ":" + password + "@tcp(" + host + ":3306)/" + database + "?charset=utf8&parseTime=true"
-)
 
 func checkError(err error) {
     if err != nil {
@@ -28,6 +21,7 @@ func IndexObjects(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
@@ -55,11 +49,12 @@ func CreateObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
 		case "events":
-			res := CreateSong(db, r)
+			res := CreateEvent(db, r)
 			json.NewEncoder(w).Encode(res)
 		case "gachas":
 			res := CreateGacha(db, r)
@@ -80,11 +75,12 @@ func ShowObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
 		case "events":
-			res := ShowSong(db, params["id"])
+			res := ShowEvent(db, params["id"])
 			json.NewEncoder(w).Encode(res)
 		case "gachas":
 			res := ShowGacha(db, params["id"])
@@ -105,11 +101,12 @@ func UpdateObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
 		case "events":
-			res := UpdateSong(db, r)
+			res := UpdateEvent(db, r)
 			json.NewEncoder(w).Encode(res)
 		case "gachas":
 			res := UpdateGacha(db, r)
@@ -131,11 +128,12 @@ func DeleteObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
 		case "events":
-			res := DeleteSong(db, params["id"])
+			res := DeleteEvent(db, params["id"])
 			json.NewEncoder(w).Encode(res)
 		case "gachas":
 			res := DeleteGacha(db, params["id"])

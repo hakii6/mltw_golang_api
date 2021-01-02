@@ -10,12 +10,14 @@ import (
 )
 
 type Idol struct {
-	ID string `json:"id"`
+	ID string `json:"ID"`
 	Name_jp string `json:"NameJP"`
 	Name_tw string `json:"NameTW"`
 	Type string `json:"Type"`
 	Thumbnail string `json:"Thumbnail"`
 	Intro string `json:"Intro"`
+	Songs []Song `gorm:"many2many:idol_song"`
+	Cards []Card `gorm:"foreignKey:IdolID"`
 }
 
 func IndexIdols(db *gorm.DB) []Idol {
@@ -37,8 +39,11 @@ func CreateIdol(db *gorm.DB, r *http.Request) Idol {
 
 func ShowIdol(db *gorm.DB, id string) Idol {
 	var idol Idol
-	res := db.Select("id", "name_jp", "name_tw", "type", "thumbnail", "intro").Where("id = ?", id).First(&idol)
-	checkError(res.Error)
+	db.Preload("Songs").Preload("Cards").Where("id = ?", id).First(&idol)
+		// res := db.Select("id", "name_jp", "name_tw", "type", "thumbnail", "intro").Where("id = ?", id).First(&idol)
+
+	// res := db.Select("id", "name_jp", "name_tw", "type", "thumbnail", "intro").Where("id = ?", id).First(&idol)
+	// checkError(res.Error)
 	return idol
 }
 

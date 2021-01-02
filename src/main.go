@@ -20,7 +20,7 @@ func main() {
 	// Router.HandleFunc("/api/v0/{objects}", CreateObject).Methods("POST")
 	Router.HandleFunc("/api/v0/{objects}/{id}", ShowObject).Methods("GET")
 	// Router.HandleFunc("/api/v0/{objects}/{id}", UpdateObject).Methods("PATCH")
-	// Router.HandleFunc("/api/v0/{objects}/{id}", DeleteObject).Methods("Delete")
+	// Router.HandleFunc("/api/v0/{objects}/{id}", DeleteObject).Methods("DELETE")
 
     // http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request){
     //     fmt.Fprintf(w, "hiii")
