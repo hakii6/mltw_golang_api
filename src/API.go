@@ -21,7 +21,7 @@ func IndexObjects(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	w.Header().Set("Access-Control-Allow-Origin", web_host)
 	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
@@ -49,7 +49,7 @@ func CreateObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	w.Header().Set("Access-Control-Allow-Origin", web_host)
 	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
@@ -75,7 +75,7 @@ func ShowObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	w.Header().Set("Access-Control-Allow-Origin", web_host)
 	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
@@ -101,7 +101,7 @@ func UpdateObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	w.Header().Set("Access-Control-Allow-Origin", web_host)
 	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
@@ -128,7 +128,7 @@ func DeleteObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	w.Header().Set("Access-Control-Allow-Origin", web_host)
 	w.Header().Set("Content-Type", "application/json")
 
 	switch params["objects"] {
