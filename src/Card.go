@@ -1,10 +1,10 @@
 package main
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	// "time"
 	"gorm.io/gorm"
-	"net/http"
+	"net/url"
 	// "gorm.io/driver/mysql"
 
 )
@@ -31,46 +31,27 @@ type Card struct {
 	GetCardType string `json:"GetCardType"`
 }
 
-func IndexCards(db *gorm.DB) []Card {
+func IndexCards(db *gorm.DB, filter url.Values) []Card {
 	var cards []Card
-	res := db.Select("id", "name_jp", "name_tw", "rarity", "total", "vocal", "dance", "visual", "limited", "date").Find(&cards)
+	temp := db.Select("id", "name_jp", "name_tw", "rarity", "total", "vocal", "dance", "visual", "limited", "date")
+	if filter["type"] != nil {
+		temp.Where("type = ?", filter["type"][0])
+	}
+	if filter["rarity"] != nil {
+		temp.Where("rarity = ?", filter["rarity"][0])
+	}
+	if filter["year"] != nil {
+		temp.Where("date BETWEEN ? AND ?", filter["year"][0] + "-01-01", filter["year"][0] + "-12-31")
+	}
+	res := temp.Find(&cards)
 	checkError(res.Error)
 	return cards
 }
 
-func CreateCard(db *gorm.DB, r *http.Request) Card {
-	var card Card
-	err := json.NewDecoder(r.Body).Decode(&card)
-	checkError(err)
 
-	res := db.Select("id", "name_jp", "name_tw", "rarity", "limited", "date").Create(&card)
-	checkError(res.Error)
-	return card
-}
-
-func ShowCard(db *gorm.DB, id string) Card {
-	var card Card
+func (card *Card) Show(db *gorm.DB, id string) *Card{
 	res := db.Preload("Idol").Where("id = ?", id).First(&card)
-
-	// res := db.Select("id", "name_jp", "name_tw", "rarity", "limited", "date").Where("id = ?", id).First(&card)
 	checkError(res.Error)
+
 	return card
-}
-
-func UpdateCard(db *gorm.DB, r *http.Request) Card {
-	var card Card
-	err := json.NewDecoder(r.Body).Decode(&card)
-	checkError(err)
-
-	res := db.Updates(&card)
-	checkError(res.Error)
-	return card
-}
-
-func DeleteCard(db *gorm.DB, id string) string {
-	var card Card
-	card.ID = id
-	res := db.Delete(&card)
-	checkError(res.Error)
-	return "success"
 }

@@ -1,10 +1,11 @@
 package main
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	"time"
 	"gorm.io/gorm"
-	"net/http"
+	"net/url"
+	// "net/http"
 	// "gorm.io/driver/mysql"
 
 )
@@ -20,44 +21,21 @@ type Gacha struct {
 	Cards []Card `gorm:"polymorphic:GetCard;polymorphicValue:Gacha"`
 }
 
-func IndexGachas(db *gorm.DB) []Gacha {
+func IndexGachas(db *gorm.DB, filter url.Values) []Gacha {
 	var gachas []Gacha
-	res := db.Preload("Cards").Find(&gachas)
+	temp := db.Preload("Cards")
+	if filter["year"] != nil {
+		temp.Where("(start_date BETWEEN ? AND ?) OR (end_date BETWEEN ? AND ?)", 
+			filter["year"][0] + "-01-01", filter["year"][0] + "-12-31", filter["year"][0] + "-01-01", filter["year"][0] + "-12-31")
+	}
+	res := temp.Find(&gachas)
 	checkError(res.Error)
 	return gachas
 }
 
-func CreateGacha(db *gorm.DB, r *http.Request) Gacha {
-	var gacha Gacha
-	err := json.NewDecoder(r.Body).Decode(&gacha)
-	checkError(err)
-
-	res := db.Select("id", "name_jp", "name_tw", "start_date", "end_date", "ori_url").Create(&gacha)
-	checkError(res.Error)
-	return gacha
-}
-
-func ShowGacha(db *gorm.DB, id string) Gacha {
-	var gacha Gacha
+func (gacha *Gacha) Show(db *gorm.DB, id string) *Gacha{
 	res := db.Select("id", "name_jp", "name_tw", "start_date", "end_date", "ori_url").Where("id = ?", id).First(&gacha)
 	checkError(res.Error)
+
 	return gacha
-}
-
-func UpdateGacha(db *gorm.DB, r *http.Request) Gacha {
-	var gacha Gacha
-	err := json.NewDecoder(r.Body).Decode(&gacha)
-	checkError(err)
-
-	res := db.Updates(&gacha)
-	checkError(res.Error)
-	return gacha
-}
-
-func DeleteGacha(db *gorm.DB, id string) string {
-	var gacha Gacha
-	gacha.ID = id
-	res := db.Delete(&gacha)
-	checkError(res.Error)
-	return "success"
 }

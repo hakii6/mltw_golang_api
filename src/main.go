@@ -2,83 +2,43 @@ package main
 
 import (
 	// "encoding/json"
-	_ "fmt"
+	// "fmt"
 	"net/http"
 	"log"
-	"os"
 	"github.com/gorilla/mux"
-	"github.com/kardianos/service"
+	// "gorm.io/gorm"
+	// "encoding/json"
+	// "gorm.io/driver/mysql"
 )
-var logger service.Logger
 
-type program struct{}
+func SetHeader(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-func (p *program) Start(s service.Service) error {
-	// Start should not block. Do the actual work async.
-	go p.run()
-	return nil
+		w.Header().Set("Content-Type", "application/json")
+	    next.ServeHTTP(w, r)
+    })
 }
 
-func (p *program) run() {
-	// Do work here
+func main() {
+
 
 	// Init Router
 	Router := mux.NewRouter()
 
-
-
+	// V1 
+	RV1 := Router.PathPrefix("/v1").Subrouter()
+	
 	// Index & CRUD
-	Router.HandleFunc("/v0/{objects}", IndexObjects).Methods("GET")
-	// Router.HandleFunc("/v0/{objects}", CreateObject).Methods("POST")
-	Router.HandleFunc("/v0/{objects}/{id}", ShowObject).Methods("GET")
-	// Router.HandleFunc("/v0/{objects}/{id}", UpdateObject).Methods("PATCH")
-	// Router.HandleFunc("/v0/{objects}/{id}", DeleteObject).Methods("DELETE")
+	RV1.HandleFunc("/{objects}", IndexObjects).Methods("GET")
+	// RV1.HandleFunc("/{objects}", CreateObject).Methods("POST")
+	RV1.HandleFunc("/{objects}/{id:[0-9]+}", ShowObject).Methods("GET")
+	// RV1.HandleFunc("/{objects}/{id}", UpdateObject).Methods("PATCH")
+	// RV1.HandleFunc("/{objects}/{id}", DeleteObject).Methods("DELETE")
 
-    // http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request){
-    //     fmt.Fprintf(w, "hiii")
-    // })
+	RV1.Use(SetHeader)
 
-    log.Fatal(http.ListenAndServe(":8001", Router))
 
-}
 
-func (p *program) Stop(s service.Service) error {
-	// Stop should not block. Return with a few seconds.
-	return nil
-}
-
-func main() {
-	svcConfig := &service.Config{
-		Name:        "GoAPI",
-		DisplayName: "Go API",
-		Description: "Mltw Golang API",
-	}
-	prg := &program{}
-	s, err := service.New(prg, svcConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// if in windows install and start uself
-	if len(os.Args) > 1 {
-		err = service.Control(s, os.Args[1])
-		if err != nil {
-			log.Fatal(err)
-		}
-		if os.Args[1] != "start" {
-			return
-		}
-	}
-
-	logger, err = s.Logger(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = s.Run()
-	if err != nil {
-		logger.Error(err)
-	}
-
+    log.Fatal(http.ListenAndServe(":8002", Router))
 
 }

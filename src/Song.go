@@ -1,10 +1,11 @@
 package main
 
 import (
-	"encoding/json"
+	// "encoding/json"
+	// "log"
 	"time"
 	"gorm.io/gorm"
-	"net/http"
+	"net/url"
 	// "gorm.io/driver/mysql"
 
 )
@@ -32,44 +33,62 @@ type Song struct {
 	ExNotes int `json:"ExNotes"`
 }
 
-func IndexSongs(db *gorm.DB) []Song {
+// func (s Song) Index(db *gorm.DB) []Song {
+// 	var songs []Song
+// 	res := db.Select("id", "name_jp", "name_tw", "BPM", "length", "image", "date", "type").Find(&songs)
+// 	checkError(res.Error)
+// 	return songs
+// }
+
+func IndexSongs(db *gorm.DB, filter url.Values) []Song {
 	var songs []Song
-	res := db.Select("id", "name_jp", "name_tw", "BPM", "length", "image", "date", "type").Find(&songs)
+	temp := db.Select("id", "name_jp", "name_tw", "BPM", "length", "image", "date", "type")
+	if filter["type"] != nil {
+		temp.Where("type = ?", filter["type"][0])
+	}
+	if filter["year"] != nil {
+		temp.Where("date BETWEEN ? AND ?", filter["year"][0] + "-01-01", filter["year"][0] + "-12-31")
+	}
+	// for key, _ := range filter {
+	// 	temp.Where("type = ?", key)
+	// }
+	res := temp.Find(&songs)
 	checkError(res.Error)
+
 	return songs
 }
 
-func CreateSong(db *gorm.DB, r *http.Request) Song {
-	var song Song
-	err := json.NewDecoder(r.Body).Decode(&song)
-	checkError(err)
-
-	res := db.Create(&song)
-	checkError(res.Error)
-	return song
-}
-
-func ShowSong(db *gorm.DB, id string) Song {
-	var song Song
+func (song *Song) Show(db *gorm.DB, id string) *Song{
 	res := db.Where("id = ?", id).First(&song)
 	checkError(res.Error)
+
 	return song
 }
 
-func UpdateSong(db *gorm.DB, r *http.Request) Song {
-	var song Song
-	err := json.NewDecoder(r.Body).Decode(&song)
-	checkError(err)
+// func (song *Song) Create(db *gorm.DB, r *http.Request) *Song{
+// 	err := json.NewDecoder(r.Body).Decode(&song)
+// 	checkError(err)
 
-	res := db.Updates(&song)
-	checkError(res.Error)
-	return song
-}
+// 	res := db.Create(&song)
+// 	checkError(res.Error)
 
-func DeleteSong(db *gorm.DB, id string) string {
-	var song Song
-	song.ID = id
-	res := db.Delete(&song)
-	checkError(res.Error)
-	return "success"
-}
+// 	return song
+// }
+
+// func (song *Song) Update(db *gorm.DB, r *http.Request) *Song {
+// 	err := json.NewDecoder(r.Body).Decode(&song)
+// 	checkError(err)
+
+// 	res := db.Updates(&song)
+// 	checkError(res.Error)
+
+// 	return song
+// }
+
+// func (song *Song) Delete(db *gorm.DB, id string) string {
+// 	song.ID = id
+// 	res := db.Delete(&song)
+// 	checkError(res.Error)
+
+// 	return "success"
+// }

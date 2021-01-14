@@ -1,10 +1,10 @@
 package main
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	"time"
 	"gorm.io/gorm"
-	"net/http"
+	"net/url"
 	// "gorm.io/driver/mysql"
 
 )
@@ -22,45 +22,21 @@ type Event struct {
 	Cards []Card `gorm:"polymorphic:GetCard;polymorphicValue:Event"`
 }
 
-func IndexEvents(db *gorm.DB) []Event {
+func IndexEvents(db *gorm.DB, filter url.Values) []Event {
 	var events []Event
-	res := db.Preload("Cards").Find(&events)
+	temp := db.Preload("Cards")
+	if filter["year"] != nil {
+		temp.Where("(start_date BETWEEN ? AND ?) OR (end_date BETWEEN ? AND ?)", 
+			filter["year"][0] + "-01-01", filter["year"][0] + "-12-31", filter["year"][0] + "-01-01", filter["year"][0] + "-12-31")
+	}
+	res := temp.Find(&events)
 	checkError(res.Error)
 	return events
 }
 
-func CreateEvent(db *gorm.DB, r *http.Request) Event {
-	var event Event
-	err := json.NewDecoder(r.Body).Decode(&event)
-	checkError(err)
-
-	res := db.Select("id", "name_jp", "name_tw", "start_date", "boost_date", "end_date", "ori_url", "type").Create(&event)
+func (event *Event) Show(db *gorm.DB, id string) *Event {
+	res := db.Preload("Cards").Where("id = ?", id).First(&event)
 	checkError(res.Error)
+
 	return event
-}
-
-func ShowEvent(db *gorm.DB, id string) Event {
-	var event Event
-	db.Preload("Cards").Where("id = ?", id).First(&event)
-	// res := db.Select("id", "name_jp", "name_tw", "start_date", "boost_date", "end_date", "ori_url", "type").Where("id = ?", id).First(&event)
-	// checkError(res.Error)
-	return event
-}
-
-func UpdateEvent(db *gorm.DB, r *http.Request) Event {
-	var event Event
-	err := json.NewDecoder(r.Body).Decode(&event)
-	checkError(err)
-
-	res := db.Updates(&event)
-	checkError(res.Error)
-	return event
-}
-
-func DeleteEvent(db *gorm.DB, id string) string {
-	var event Event
-	event.ID = id
-	res := db.Delete(&event)
-	checkError(res.Error)
-	return "success"
 }

@@ -10,7 +10,6 @@ import (
 
 )
 
-
 func checkError(err error) {
     if err != nil {
         panic(err)
@@ -21,131 +20,121 @@ func IndexObjects(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
-	w.Header().Set("Access-Control-Allow-Origin", web_host)
-	w.Header().Set("Content-Type", "application/json")
-
+	filter := r.URL.Query()
+	// filter["Princess"] = true
+	var res interface{}
 	switch params["objects"] {
-		case "events":
-			res := IndexEvents(db)
-			json.NewEncoder(w).Encode(res)
+		// case "events":
+		// 	res = IndexEvents(db, filter)
 		case "gachas":
-			res := IndexGachas(db)
-			json.NewEncoder(w).Encode(res)
-		case "idols":
-			res := IndexIdols(db)
-			json.NewEncoder(w).Encode(res)		
+			res = IndexGachas(db, filter)
+		// case "idols":
+		// 	res = IndexIdols(db, filter)
 		case "songs":
-			res := IndexSongs(db)
-			json.NewEncoder(w).Encode(res)
+			res = IndexSongs(db, filter)
 		case "cards":
-			res := IndexCards(db)
-			json.NewEncoder(w).Encode(res)	
+			res = IndexCards(db, filter)
 	}
-
-	
+	json.NewEncoder(w).Encode(res)
 }
 
-func CreateObject(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
-	checkError(err)
-	params := mux.Vars(r)
-	w.Header().Set("Access-Control-Allow-Origin", web_host)
-	w.Header().Set("Content-Type", "application/json")
+// func CreateObject(w http.ResponseWriter, r *http.Request) {
+// 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
+// 	checkError(err)
+// 	params := mux.Vars(r)
 
-	switch params["objects"] {
-		case "events":
-			res := CreateEvent(db, r)
-			json.NewEncoder(w).Encode(res)
-		case "gachas":
-			res := CreateGacha(db, r)
-			json.NewEncoder(w).Encode(res)
-		case "idols":
-			res := CreateIdol(db, r)
-			json.NewEncoder(w).Encode(res)
-		case "songs":
-			res := CreateSong(db, r)
-			json.NewEncoder(w).Encode(res)
-		case "cards":
-			res := CreateCard(db, r)
-			json.NewEncoder(w).Encode(res)
-	}
-}
+// 	var res interface{}
+// 	switch params["objects"] {
+// 		// case "events":
+// 		// 	res := CreateEvent(db, r)
+// 		// 	json.NewEncoder(w).Encode(res)
+// 		// case "gachas":
+// 		// 	res := CreateGacha(db, r)
+// 		// 	json.NewEncoder(w).Encode(res)
+// 		// case "idols":
+// 		// 	res := CreateIdol(db, r)
+// 		// 	json.NewEncoder(w).Encode(res)
+// 		case "songs":
+// 			var song Song
+// 			res = song.Create(db, r)
+// 		// case "cards":
+// 		// 	res := CreateCard(db, r)
+// 		// 	json.NewEncoder(w).Encode(res)
+// 	}
+// 	json.NewEncoder(w).Encode(res)
+// }
 
 func ShowObject(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
 	checkError(err)
 	params := mux.Vars(r)
-	w.Header().Set("Access-Control-Allow-Origin", web_host)
-	w.Header().Set("Content-Type", "application/json")
 
+	var res interface{}
 	switch params["objects"] {
 		case "events":
-			res := ShowEvent(db, params["id"])
-			json.NewEncoder(w).Encode(res)
+			var event Event
+			res = event.Show(db, params["id"])
 		case "gachas":
-			res := ShowGacha(db, params["id"])
-			json.NewEncoder(w).Encode(res)
+			var gacha Gacha
+			res = gacha.Show(db, params["id"])
 		case "idols":
-			res := ShowIdol(db, params["id"])
-			json.NewEncoder(w).Encode(res)
+			var idol Idol
+			res = idol.Show(db, params["id"])
 		case "songs":
-			res := ShowSong(db, params["id"])
-			json.NewEncoder(w).Encode(res)
+			var song Song
+			res = song.Show(db, params["id"])
 		case "cards":
-			res := ShowCard(db, params["id"])
-			json.NewEncoder(w).Encode(res)
+			var card Card
+			res = card.Show(db, params["id"])
 	}
+	json.NewEncoder(w).Encode(res)
 }
 
-func UpdateObject(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
-	checkError(err)
-	params := mux.Vars(r)
-	w.Header().Set("Access-Control-Allow-Origin", web_host)
-	w.Header().Set("Content-Type", "application/json")
+// func UpdateObject(w http.ResponseWriter, r *http.Request) {
+// 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
+// 	checkError(err)
+// 	params := mux.Vars(r)
 
-	switch params["objects"] {
-		case "events":
-			res := UpdateEvent(db, r)
-			json.NewEncoder(w).Encode(res)
-		case "gachas":
-			res := UpdateGacha(db, r)
-			json.NewEncoder(w).Encode(res)
-		case "idolss":
-			res := UpdateIdol(db, r)
-			json.NewEncoder(w).Encode(res)
-		case "songs":
-			res := UpdateSong(db, r)
-			json.NewEncoder(w).Encode(res)
-		case "cards":
-			res := UpdateCard(db, r)
-			json.NewEncoder(w).Encode(res)
-	}
+// 	switch params["objects"] {
+// 		case "events":
+// 			res := UpdateEvent(db, r)
+// 			json.NewEncoder(w).Encode(res)
+// 		case "gachas":
+// 			res := UpdateGacha(db, r)
+// 			json.NewEncoder(w).Encode(res)
+// 		case "idolss":
+// 			res := UpdateIdol(db, r)
+// 			json.NewEncoder(w).Encode(res)
+// 		case "songs":
+// 			res := UpdateSong(db, r)
+// 			json.NewEncoder(w).Encode(res)
+// 		case "cards":
+// 			res := UpdateCard(db, r)
+// 			json.NewEncoder(w).Encode(res)
+// 	}
 
-}
+// }
 
-func DeleteObject(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
-	checkError(err)
-	params := mux.Vars(r)
-	w.Header().Set("Access-Control-Allow-Origin", web_host)
-	w.Header().Set("Content-Type", "application/json")
+// func DeleteObject(w http.ResponseWriter, r *http.Request) {
+// 	db, err := gorm.Open(mysql.Open(connect), &gorm.Config{})
+// 	checkError(err)
+// 	params := mux.Vars(r)
 
-	switch params["objects"] {
-		case "events":
-			res := DeleteEvent(db, params["id"])
-			json.NewEncoder(w).Encode(res)
-		case "gachas":
-			res := DeleteGacha(db, params["id"])
-			json.NewEncoder(w).Encode(res)
-		case "idols":
-			res := DeleteIdol(db, params["id"])
-			json.NewEncoder(w).Encode(res)
-		case "songs":
-			res := DeleteSong(db, params["id"])
-			json.NewEncoder(w).Encode(res)
-		case "cards":
-			res := DeleteCard(db, params["id"])
-			json.NewEncoder(w).Encode(res)
-	}
-}
+// 	switch params["objects"] {
+// 		case "events":
+// 			res := DeleteEvent(db, params["id"])
+// 			json.NewEncoder(w).Encode(res)
+// 		case "gachas":
+// 			res := DeleteGacha(db, params["id"])
+// 			json.NewEncoder(w).Encode(res)
+// 		case "idols":
+// 			res := DeleteIdol(db, params["id"])
+// 			json.NewEncoder(w).Encode(res)
+// 		case "songs":
+// 			res := DeleteSong(db, params["id"])
+// 			json.NewEncoder(w).Encode(res)
+// 		case "cards":
+// 			res := DeleteCard(db, params["id"])
+// 			json.NewEncoder(w).Encode(res)
+// 	}
+// }
